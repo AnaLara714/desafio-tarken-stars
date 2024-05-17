@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contagem de Pixels - Desafio Tarken</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        border-spacing: 0px;
+      }
+      table,
+      th,
+      td {
+        padding: 5px;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body style="font-family: sans-serif">
+    <header>
+      <h1>Contagem de Pixels - Desafio Tarken</h1>
+    </header>
+    <main>
+      <label style="display: flex; flex-direction: column; row-gap: 10px">
+        Faça o upload da imagem Meteor_challenge:
+        <input type="file" id="upload" accept="image/*" />
+      </label>
+      <canvas id="canvas" style="display: none"></canvas>
+      <p id="result"></p>
+    </main>
+    <script>
+      document
+        .getElementById("upload")
+        .addEventListener("change", function (event) {
+          const file = event.target.files[0];
+          if (!file) {
+            return;
+          }
+
+          const img = new Image();
+          img.src = URL.createObjectURL(file);
+          img.onload = () => {
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+            const data = imageData.data;
+
+            let redPixels = 0;
+            let whitePixels = 0;
+            let redPixelPositions = [];
+
+            // Contagem de pixels vermelhos e azuis e armazenamento das posições dos pixels vermelhos
+            for (let i = 0; i < data.length; i += 4) {
+              const r = data[i];
+              const g = data[i + 1];
+              const b = data[i + 2];
+
+              if (r > 200 && g < 50 && b < 50) {
+                redPixels++;
+                const x = (i / 4) % canvas.width;
+                const y = Math.floor(i / 4 / canvas.width);
+                redPixelPositions.push({ x, y });
+              } else if (r === 255 && g === 255 && b === 255) {
+                whitePixels++;
+              }
+            }
+
+            // Simulação de queda dos pixels vermelhos
+            let redPixelsReachedBlue = 0;
+
+            redPixelPositions.forEach((pixel) => {
+              let y = pixel.y;
+              let reachedBlue = false;
+
+              while (y < canvas.height - 1 && !reachedBlue) {
+                const indexBelow = ((y + 1) * canvas.width + pixel.x) * 4;
+                const rBelow = data[indexBelow];
+                const gBelow = data[indexBelow + 1];
+                const bBelow = data[indexBelow + 2];
+
+                if (rBelow === 0 && gBelow === 0 && bBelow === 255) {
+                  // Verifica se o pixel abaixo é azul puro
+                  reachedBlue = true;
+                  redPixelsReachedBlue++;
+                } else {
+                  y++;
+                }
+              }
+            });
+
+            document.getElementById("result").innerHTML = `
+              <table>
+                <tr>
+                  <th>Q.</th>
+                  <th>Resultados</th>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>Número de Meteoros (Vermelho Puro):</td>
+                  <td>${redPixels}</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Número de Estrelas (Branco Puro):</td>
+                  <td>${whitePixels}</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Número de meteoro que irão atingir a água: </td>
+                  <td>${redPixelsReachedBlue}</td>
+                </tr>
+              </table>`;
+          };
+        });
+    </script>
+  </body>
+</html>

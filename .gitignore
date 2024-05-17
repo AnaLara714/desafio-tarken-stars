@@ -1,0 +1,5 @@
+# Ignore all files with the specified name.
+.gitignore
+index-v1.html
+index-v2.html
+styles.css
