@@ -37,7 +37,6 @@
           if (!file) {
             return;
           }
-
           const img = new Image();
           img.src = URL.createObjectURL(file);
           img.onload = () => {
@@ -46,7 +45,6 @@
             canvas.width = img.width;
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
-
             const imageData = ctx.getImageData(
               0,
               0,
@@ -54,17 +52,13 @@
               canvas.height
             );
             const data = imageData.data;
-
             let redPixels = 0;
             let whitePixels = 0;
             let redPixelPositions = [];
-
-            // Contagem de pixels vermelhos e azuis e armazenamento das posições dos pixels vermelhos
             for (let i = 0; i < data.length; i += 4) {
               const r = data[i];
               const g = data[i + 1];
               const b = data[i + 2];
-
               if (r > 200 && g < 50 && b < 50) {
                 redPixels++;
                 const x = (i / 4) % canvas.width;
@@ -74,22 +68,16 @@
                 whitePixels++;
               }
             }
-
-            // Simulação de queda dos pixels vermelhos
             let redPixelsReachedBlue = 0;
-
             redPixelPositions.forEach((pixel) => {
               let y = pixel.y;
               let reachedBlue = false;
-
               while (y < canvas.height - 1 && !reachedBlue) {
                 const indexBelow = ((y + 1) * canvas.width + pixel.x) * 4;
                 const rBelow = data[indexBelow];
                 const gBelow = data[indexBelow + 1];
                 const bBelow = data[indexBelow + 2];
-
                 if (rBelow === 0 && gBelow === 0 && bBelow === 255) {
-                  // Verifica se o pixel abaixo é azul puro
                   reachedBlue = true;
                   redPixelsReachedBlue++;
                 } else {
@@ -106,13 +94,13 @@
                 </tr>
                 <tr>
                   <td>1</td>
-                  <td>Número de Meteoros (Vermelho Puro):</td>
-                  <td>${redPixels}</td>
+                  <td>Número de Estrelas (Branco Puro):</td>
+                  <td>${whitePixels}</td>
                 </tr>
                 <tr>
                   <td>2</td>
-                  <td>Número de Estrelas (Branco Puro):</td>
-                  <td>${whitePixels}</td>
+                  <td>Número de Meteoros (Vermelho Puro):</td>
+                  <td>${redPixels}</td>
                 </tr>
                 <tr>
                   <td>3</td>
